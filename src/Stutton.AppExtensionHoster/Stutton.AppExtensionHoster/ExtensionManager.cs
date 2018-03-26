@@ -4,13 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.AppExtensions;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Core;
-using Windows.UI.Xaml.Media.Imaging;
-using Stutton.AppExtensionHoster.ContractImplementations;
 using Stutton.AppExtensionHoster.Contracts;
 using System.Runtime.CompilerServices;
 
@@ -20,9 +13,10 @@ namespace Stutton.AppExtensionHoster
 {
     public class ExtensionManager<TMessage, TResponse>
     {
-        private readonly IEnumerable<PackageSignatureKind> _allowedPackageSignatureKinds;
+        private readonly IEnumerable<SignatureKind> _allowedPackageSignatureKinds;
         private readonly IAppExtensionCatalog _catalog;
-        private CoreDispatcher _dispatcher;
+        private readonly IAppServiceConnectionFactory _connectionFactory;
+        private IDispatcher _dispatcher;
 
         /// <summary>
         /// Creates a new ExtensionManager that will monitor and notify changes to extensions using the specified contract name.
@@ -30,28 +24,13 @@ namespace Stutton.AppExtensionHoster
         /// </summary>
         /// <param name="contractName">The name used to monitor the extension catalog. Only extensions that specify the same name will be found</param>
         /// <param name="allowedPackageSignatureKinds">List of accepted package signature kinds that extension apps must have in order to be loaded</param>
-        public ExtensionManager(string contractName, IEnumerable<PackageSignatureKind> allowedPackageSignatureKinds)
-        {
-            _allowedPackageSignatureKinds = allowedPackageSignatureKinds;
-            ContractName = contractName;
-            Extensions = new ObservableCollection<Extension<TMessage, TResponse>>();
-            _catalog = new AppExtensionCatalogWrapper();
-            _catalog.Open(contractName);
-            _dispatcher = null;
-        }
-
-        /// <summary>
-        /// Creates a new ExtensionManager that will monitor and notify changes to extensions using the specified contract name.
-        /// Note: The ExtensionManager must also be initialized before use.
-        /// </summary>
-        /// <param name="contractName">The name used to monitor the extension catalog. Only extensions that specify the same name will be found</param>
-        /// <param name="allowedPackageSignatureKinds">List of accepted package signature kinds that extension apps must have in order to be loaded</param>
-        internal ExtensionManager(IAppExtensionCatalog catalog, string contractName, IEnumerable<PackageSignatureKind> allowedPackageSignatureKinds)
+        public ExtensionManager(string contractName, IEnumerable<SignatureKind> allowedPackageSignatureKinds, IAppExtensionCatalog catalog, IAppServiceConnectionFactory connectionFactory)
         {
             _allowedPackageSignatureKinds = allowedPackageSignatureKinds;
             ContractName = contractName;
             Extensions = new ObservableCollection<Extension<TMessage, TResponse>>();
             _catalog = catalog;
+            _connectionFactory = connectionFactory;
             _catalog.Open(contractName);
             _dispatcher = null;
         }
@@ -70,7 +49,7 @@ namespace Stutton.AppExtensionHoster
         /// </summary>
         /// <param name="dispatcher"></param>
         /// <returns></returns>
-        public async Task InitializeAsync(CoreDispatcher dispatcher)
+        public async Task InitializeAsync(IDispatcher dispatcher)
         {
             #region Error Handling
             if (_dispatcher != null)
@@ -109,7 +88,7 @@ namespace Stutton.AppExtensionHoster
 
             if (existingExtension == null)
             {
-                var newExtension = new Extension<TMessage, TResponse>(extension);
+                var newExtension = new Extension<TMessage, TResponse>(extension, _connectionFactory);
                 Extensions.Add(newExtension);
                 await newExtension.Initialize();
                 newExtension.Load();
@@ -141,7 +120,7 @@ namespace Stutton.AppExtensionHoster
 
         private async Task LoadExtensions(IAppPackage package)
         {
-            await _dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+            await _dispatcher.RunAsync(DispatcherPriority.Normal,
                 () =>
                 {
                     Extensions.Where(e => e.AppExtension.Package.FamilyName == package.FamilyName).ToList()
@@ -151,7 +130,7 @@ namespace Stutton.AppExtensionHoster
 
         private async Task UnloadExtensions(IAppPackage package)
         {
-            await _dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+            await _dispatcher.RunAsync(DispatcherPriority.Normal,
                 () =>
                 {
                     Extensions.Where(e => e.AppExtension.Package.FamilyName == package.FamilyName).ToList()
@@ -159,9 +138,9 @@ namespace Stutton.AppExtensionHoster
                 });
         }
 
-        private async void Catalog_PackageInstalled(IAppExtensionCatalog sender, IAppExtensionPackageInstalledEventArgs args)
+        private async void Catalog_PackageInstalled(object sender, IAppExtensionPackageInstalledEventArgs args)
         {
-            await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await _dispatcher.RunAsync(DispatcherPriority.Normal, async () =>
             {
                 foreach (var extension in args.Extensions)
                 {
@@ -172,7 +151,7 @@ namespace Stutton.AppExtensionHoster
 
         private async Task RemoveExtensions(IAppPackage package)
         {
-            await _dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+            await _dispatcher.RunAsync(DispatcherPriority.Normal,
                 () =>
                 {
                     Extensions.Where(e => e.AppExtension.Package.FamilyName == package.FamilyName).ToList()
@@ -184,9 +163,9 @@ namespace Stutton.AppExtensionHoster
                 });
         }
 
-        private async void Catalog_PackageUpdated(IAppExtensionCatalog sender, IAppExtensionPackageUpdatedEventArgs args)
+        private async void Catalog_PackageUpdated(object sender, IAppExtensionPackageUpdatedEventArgs args)
         {
-            await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await _dispatcher.RunAsync(DispatcherPriority.Normal, async () =>
             {
                 foreach (var extension in args.Extensions)
                 {
@@ -195,21 +174,21 @@ namespace Stutton.AppExtensionHoster
             });
         }
 
-        private async void Catalog_PackageUninstalling(IAppExtensionCatalog sender, IAppExtensionPackageUninstallingEventArgs args)
+        private async void Catalog_PackageUninstalling(object sender, IAppExtensionPackageUninstallingEventArgs args)
         {
             await RemoveExtensions(args.Package);
         }
 
-        private async void Catalog_PackageUpdating(IAppExtensionCatalog sender, IAppExtensionPackageUpdatingEventArgs args)
+        private async void Catalog_PackageUpdating(object sender, IAppExtensionPackageUpdatingEventArgs args)
         {
             await UnloadExtensions(args.Package);
         }
 
-        private async void Catalog_PackageStatusChanged(IAppExtensionCatalog sender, IAppExtensionPackageStatusChangedEventArgs args)
+        private async void Catalog_PackageStatusChanged(object sender, IAppExtensionPackageStatusChangedEventArgs args)
         {
             if (!args.Package.VerifyIsOK())
             {
-                if (args.Package.PackageOffline)
+                if (args.Package.Offline)
                 {
                     await UnloadExtensions(args.Package);
                 }

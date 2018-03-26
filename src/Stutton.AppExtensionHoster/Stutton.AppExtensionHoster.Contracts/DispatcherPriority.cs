@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace Stutton.AppExtensionHoster.Contracts
 {
-    public interface IAppServiceResponse
+    public enum DispatcherPriority
     {
-        IDictionary<string, object> Message { get; }
-        AppResponseStatus Status { get; }
+        Idle = -2,
+        Low = -1,
+        Normal = 0,
+        High = 1
     }
 }

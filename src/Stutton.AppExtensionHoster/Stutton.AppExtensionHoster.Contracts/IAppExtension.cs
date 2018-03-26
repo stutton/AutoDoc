@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace Stutton.AppExtensionHoster.Contracts
 {
@@ -13,9 +10,10 @@ namespace Stutton.AppExtensionHoster.Contracts
     {
         IAppPackage Package { get; }
 
-        IAsyncOperation<IPropertySet> GetExtensionPropertiesAsync();
+        Task<IDictionary<string, object>> GetExtensionPropertiesAsync();
         Task<string> GetServiceNameAsync();
-        Task<BitmapImage> GetLogoAsync();
+        Task<IBitmapImage> GetLogoAsync();
         string GetUniqueId();
+        IAppServiceConnection GetConnection();
     }
 }

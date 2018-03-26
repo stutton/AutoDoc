@@ -17,7 +17,7 @@ namespace Stutton.AppExtensionHoster.ContractImplementations
             _appPackage = appPackage;
         }
 
-        public PackageSignatureKind SignatureKind => _appPackage.SignatureKind;
+        public SignatureKind SignatureKind => _appPackage.SignatureKind.GetSignatureKind();
         public string FamilyName => _appPackage.Id.FamilyName;
         public string FullName => _appPackage.Id.FullName;
         public bool Offline => _appPackage.Status.PackageOffline;

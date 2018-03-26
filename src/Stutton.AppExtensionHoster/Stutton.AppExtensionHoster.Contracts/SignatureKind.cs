@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace Stutton.AppExtensionHoster.Contracts
 {
-    public interface IAppServiceResponse
+    public enum SignatureKind
     {
-        IDictionary<string, object> Message { get; }
-        AppResponseStatus Status { get; }
+        Developer,
+        Enterprise,
+        None,
+        Store,
+        System
     }
 }

@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace Stutton.AppExtensionHoster.Contracts
 {
-    public interface IAppServiceResponse
+    public enum AppResponseStatus
     {
-        IDictionary<string, object> Message { get; }
-        AppResponseStatus Status { get; }
+        MessageSizeTooLarge,
+        RemoteSystemUnavailable,
+        ResourceLimitsExceeded,
+        Success,
+        Failure,
+        Unknown
     }
 }

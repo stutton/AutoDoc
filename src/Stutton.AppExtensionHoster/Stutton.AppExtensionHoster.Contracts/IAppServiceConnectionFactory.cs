@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Stutton.AppExtensionHoster.Contracts
 {
-    public interface IAppServiceResponse
+    public interface IAppServiceConnectionFactory
     {
-        IDictionary<string, object> Message { get; }
-        AppResponseStatus Status { get; }
+        IAppServiceConnection Create();
     }
 }

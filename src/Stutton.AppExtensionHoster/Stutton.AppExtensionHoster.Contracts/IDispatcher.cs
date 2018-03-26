@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Stutton.AppExtensionHoster.Contracts
 {
-    public interface IAppServiceResponse
+    public interface IDispatcher
     {
-        IDictionary<string, object> Message { get; }
-        AppResponseStatus Status { get; }
+        Task RunAsync(DispatcherPriority priority, Action handler);
     }
 }

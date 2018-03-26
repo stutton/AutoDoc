@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.AppService;
 
 namespace Stutton.AppExtensionHoster.Contracts
 {
-    public interface IAppServiceConnection
+    public interface IAppServiceConnection : IDisposable
     {
         string AppServiceName { get; set; }
         string PackageFamilyName { get; set; }
 
-        Task<AppServiceConnectionStatus> OpanAsync();
-        Task<IAppServiceResponse> SendMessageAsync();
+        Task<AppConnectionStatus> OpenAsync();
+        Task<IAppServiceResponse> SendMessageAsync(object message);
     }
 }

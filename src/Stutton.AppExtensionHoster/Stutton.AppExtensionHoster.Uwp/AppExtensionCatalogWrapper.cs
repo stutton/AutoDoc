@@ -13,11 +13,11 @@ namespace Stutton.AppExtensionHoster.ContractImplementations
     {
         private AppExtensionCatalog _catalog;
 
-        public event TypedEventHandler<IAppExtensionCatalog, IAppExtensionPackageInstalledEventArgs> PackageInstalled;
-        public event TypedEventHandler<IAppExtensionCatalog, IAppExtensionPackageUpdatedEventArgs> PackageUpdated;
-        public event TypedEventHandler<IAppExtensionCatalog, IAppExtensionPackageUninstallingEventArgs> PackageUninstalling;
-        public event TypedEventHandler<IAppExtensionCatalog, IAppExtensionPackageUpdatingEventArgs> PackageUpdating;
-        public event TypedEventHandler<IAppExtensionCatalog, IAppExtensionPackageStatusChangedEventArgs> PackageStatusChanged;
+        public event EventHandler<IAppExtensionPackageInstalledEventArgs> PackageInstalled;
+        public event EventHandler<IAppExtensionPackageUpdatedEventArgs> PackageUpdated;
+        public event EventHandler<IAppExtensionPackageUninstallingEventArgs> PackageUninstalling;
+        public event EventHandler<IAppExtensionPackageUpdatingEventArgs> PackageUpdating;
+        public event EventHandler<IAppExtensionPackageStatusChangedEventArgs> PackageStatusChanged;
 
         public void Open(string contractName)
         {

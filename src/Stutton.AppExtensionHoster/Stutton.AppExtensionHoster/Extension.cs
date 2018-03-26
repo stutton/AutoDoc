@@ -3,24 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.AppExtensions;
-using Windows.ApplicationModel.AppService;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml.Media.Imaging;
-using Newtonsoft.Json;
 using Stutton.AppExtensionHoster.Contracts;
 
 namespace Stutton.AppExtensionHoster
 {
     public class Extension<TMessage, TResponse> : NotifyBase
     {
-        private PropertySet _properties;
+        private readonly IAppServiceConnectionFactory _connectionFactory;
+        private IDictionary<string, object> _properties;
         private string _serviceName;
         private readonly object _sync = new object();
 
-        public Extension(IAppExtension extension)
+        public Extension(IAppExtension extension, IAppServiceConnectionFactory connectionFactory)
         {
+            _connectionFactory = connectionFactory;
             AppExtension = extension;
             UniqueId = extension.GetUniqueId();
             _state = ExtensionState.Uninitialized;
@@ -28,8 +24,8 @@ namespace Stutton.AppExtensionHoster
 
         public string UniqueId { get; }
 
-        private BitmapImage _logo;
-        public BitmapImage Logo
+        private IBitmapImage _logo;
+        public IBitmapImage Logo
         {
             get => _logo;
             private set => SetProperty(ref _logo, value);
@@ -53,8 +49,7 @@ namespace Stutton.AppExtensionHoster
 
             try
             {
-                var messageSet = new ValueSet {{"message", message}};
-                using (var connection = new AppServiceConnection())
+                using (var connection = _connectionFactory.Create())
                 {
                     connection.AppServiceName = _serviceName;
                     connection.PackageFamilyName = AppExtension.Package.FamilyName;
@@ -62,16 +57,16 @@ namespace Stutton.AppExtensionHoster
                     var status = await connection.OpenAsync();
 
                     #region Error Handling
-                    if (status != AppServiceConnectionStatus.Success)
+                    if (status != AppConnectionStatus.Success)
                     {
-                        return ("error", $"Failed to open app service connection to {_serviceName}: Connection status is {status}", default(TResponse));
+                        return ("error", $"Failed to open app service connectionFactory to {_serviceName}: Connection status is {status}", default(TResponse));
                     }
                     #endregion
 
-                    var response = await connection.SendMessageAsync(messageSet);
+                    var response = await connection.SendMessageAsync(message);
 
                     #region Error Handling
-                    if (response.Status != AppServiceResponseStatus.Success)
+                    if (response.Status != AppResponseStatus.Success)
                     {
                         return ("error", $"Failed to call app service {_serviceName}: Reponse status is {response.Status}", default(TResponse));
                     }
@@ -109,7 +104,7 @@ namespace Stutton.AppExtensionHoster
                 throw new ExtensionException($"Extension for '{_serviceName}' is already initialized");
             }
 
-            _properties = await AppExtension.GetExtensionPropertiesAsync() as PropertySet;
+            _properties = await AppExtension.GetExtensionPropertiesAsync();
             _serviceName = await AppExtension.GetServiceNameAsync();
             _logo = await AppExtension.GetLogoAsync();
             State = ExtensionState.Offline;
@@ -156,7 +151,7 @@ namespace Stutton.AppExtensionHoster
             State = ExtensionState.Offline;
 
             AppExtension = newExtension;
-            _properties = await newExtension.GetExtensionPropertiesAsync() as PropertySet;
+            _properties = await newExtension.GetExtensionPropertiesAsync();
             _serviceName = await newExtension.GetServiceNameAsync();
             Logo = await newExtension.GetLogoAsync();
 
