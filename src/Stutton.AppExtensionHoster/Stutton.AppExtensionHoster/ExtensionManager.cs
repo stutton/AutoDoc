@@ -102,15 +102,6 @@ namespace Stutton.AppExtensionHoster
 
         private async Task FindAndLoadExtensions()
         {
-            #region Error Handling
-
-            if (_dispatcher == null)
-            {
-                throw new ExtensionManagerException($"Extension Manager for {ContractName} is not initialized");
-            }
-
-            #endregion
-            
             var extensions = await _catalog.FindAllAsync();
             foreach (var extension in extensions)
             {
