@@ -1,59 +1,74 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Stutton.AppExtensionClient.Contracts;
 
 namespace Stutton.AppExtensionClient
 {
     public abstract class ExtensionClient<TMessage, TResponse>
     {
-        private IAppServiceDeferral _deferral;
+        private IDeferral _deferral;
         private IAppServiceConnection _connection;
+        private bool _initialized = false;
 
         public void Initialize(IAppTaskInstance task)
         {
+            if (_initialized)
+                return;
+
             task.Canceled += Task_Canceled;
-            _deferral = task.GetDeferral();
 
             var triggerDetails = task.TriggerDetails;
+
+            _deferral = task.GetDeferral();
+            
             _connection = triggerDetails.AppServiceConnection;
 
             _connection.RequestReceived += Connection_RequestReceived;
             _connection.ServiceClosed += Connection_ServiceClosed;
+
+            _initialized = true;
         }
 
-        protected abstract TResponse Run(TMessage message);
+        protected abstract Task<TResponse> Run(TMessage message);
 
         private async void Connection_RequestReceived(object sender, IAppServiceRequestReceivedEventArgs args)
         {
             var requestDeferral = args.GetDeferral();
-            var messageSet = args.Reqeust.Message;
-            var returnMessage = new Dictionary<string, object>();
-
-            if (!messageSet.ContainsKey("message"))
+            try
             {
-                returnMessage.Add("error", new ExtensionClientException($"Request message did not contain a key 'message'"));
-                await args.SendResponseAsync(returnMessage);
+                var messageSet = args.Reqeust.Message;
+                var returnMessage = new Dictionary<string, object>();
+
+                if (!messageSet.ContainsKey("message"))
+                {
+                    returnMessage.Add("error",
+                        new ExtensionClientException($"Request message did not contain a key 'message'"));
+                    await args.SendResponseAsync(returnMessage);
+                    return;
+                }
+
+                var jsonMessage = messageSet["message"] as string;
+                var message = JsonConvert.DeserializeObject<TMessage>(jsonMessage);
+                if (message == null)
+                {
+                    returnMessage.Add("error",
+                        new ExtensionClientException(
+                            $"Unable to deserialize message to type '{typeof(TMessage)}'. Message: '{jsonMessage}'"));
+                    await args.SendResponseAsync(returnMessage);
+                    return;
+                }
+
+                var response = await Run(message);
+                var result = await args.SendResponseAsync(response);
+                // TODO: Log result
+            }
+            finally
+            {
                 requestDeferral.Complete();
             }
-
-            var messageObj = messageSet["message"];
-            if (!(messageObj is TMessage))
-            {
-                returnMessage.Add("error", new ExtensionClientException($"Message was not of the correct type. Expected '{typeof(TMessage).Name}' but received '{messageObj.GetType().Name}'"));
-                await args.SendResponseAsync(returnMessage);
-                requestDeferral.Complete();
-            }
-
-            var message = (TMessage) messageObj;
-            
-
-            var response = Run(message);
-
-            returnMessage.Add("result", response);
-            var result = await args.SendResponseAsync(returnMessage);
-            // TODO: Log result
-            requestDeferral.Complete();
         }
 
         private void Connection_ServiceClosed(object sender, IAppServiceClosedEventArgs args)

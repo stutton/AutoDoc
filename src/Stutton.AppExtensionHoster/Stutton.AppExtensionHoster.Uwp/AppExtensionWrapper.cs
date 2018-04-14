@@ -18,11 +18,16 @@ namespace Stutton.AppExtensionHoster.ContractImplementations
         {
             WrappedExtension = extension;
             Package = new AppPackageWrapper(WrappedExtension.Package);
+            Description = extension.Description;
+            DisplayName = extension.DisplayName;
         }
 
         public AppExtension WrappedExtension { get; }
 
         public IAppPackage Package { get; }
+
+        public string Description { get; }
+        public string DisplayName { get; }
 
         public async Task<IDictionary<string, object>> GetExtensionPropertiesAsync()
         {

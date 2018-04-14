@@ -10,6 +10,9 @@ namespace Stutton.AppExtensionHoster.Contracts
     {
         IAppPackage Package { get; }
 
+        string Description { get; }
+        string DisplayName { get; }
+
         Task<IDictionary<string, object>> GetExtensionPropertiesAsync();
         Task<string> GetServiceNameAsync();
         Task<IBitmapImage> GetLogoAsync();

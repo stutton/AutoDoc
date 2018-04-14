@@ -9,6 +9,6 @@ namespace Stutton.AppExtensionClient.Contracts
     public interface IAppServiceRequest
     {
         IDictionary<string, object> Message { get; }
-        Task<ResponseStatus> SendResponseAsync(IDictionary<string, object> response);
+        Task<ResponseStatus> SendResponseAsync(object response);
     }
 }

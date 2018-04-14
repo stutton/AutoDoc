@@ -8,8 +8,8 @@ namespace Stutton.AppExtensionClient.Contracts
 {
     public interface IAppServiceRequestReceivedEventArgs
     {
-        IAppServiceDeferral GetDeferral();
+        IDeferral GetDeferral();
         IAppServiceRequest Reqeust { get; }
-        Task<AppServiceResponseStatus> SendResponseAsync(IDictionary<string, object> returnMessage);
+        Task<ResponseStatus> SendResponseAsync(object returnMessage);
     }
 }

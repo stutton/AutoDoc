@@ -1,0 +1,113 @@
+﻿<Page x:Class="Stutton.AppExtension.Demo.Host.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:exHost="using:Stutton.AppExtensionHoster"
+      xmlns:local="using:Stutton.AppExtension.Demo.Host"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="ExtensionItemTemplate">
+            <RelativePanel Width="375"
+                           Height="65"
+                           Margin="20,5,5,10">
+                <Image x:Name="ExtensionLogo"
+                       Margin="5,0,5,0"
+                       RelativePanel.RightOf="ExtensionCheckbox"
+                       Source="{Binding Path=Logo}" />
+                <TextBlock x:Name="ExtensionTitle"
+                           Margin="10,10,0,0"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           FontWeight="Bold"
+                           RelativePanel.AlignTopWithPanel="True"
+                           RelativePanel.RightOf="ExtensionLogo"
+                           Text="{Binding AppExtension.DisplayName}" />
+                <TextBlock Margin="10,0,0,10"
+                           HorizontalAlignment="Stretch"
+                           RelativePanel.AlignBottomWithPanel="True"
+                           RelativePanel.RightOf="ExtensionLogo"
+                           Text="{Binding AppExtension.Description}"
+                           TextWrapping="Wrap" />
+                <CheckBox x:Name="ExtensionCheckbox"
+                          MinWidth="30"
+                          VerticalAlignment="Center"
+                          Checked="CheckBox_Checked"
+                          IsChecked="{Binding Enabled}"
+                          RelativePanel.AlignLeftWithPanel="True"
+                          RelativePanel.AlignVerticalCenterWithPanel="True"
+                          Unchecked="CheckBox_Unchecked" />
+                <Button Margin="20,0,10,0"
+                        Click="RemoveButton_Click"
+                        RelativePanel.AlignRightWithPanel="True"
+                        RelativePanel.AlignVerticalCenterWithPanel="True">
+                    Remove
+                </Button>
+            </RelativePanel>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="450" />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Background="{StaticResource AppBarBackgroundThemeBrush}">
+            <TextBlock Margin="5"
+                       FontSize="{StaticResource TextStyleExtraLargeFontSize}"
+                       Text="Extensions:" />
+            <ItemsControl ItemTemplate="{StaticResource ExtensionItemTemplate}" ItemsSource="{x:Bind Items}" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1">
+            <TextBlock Margin="5"
+                       FontSize="{StaticResource TextStyleExtraLargeFontSize}"
+                       Text="Parameters:" />
+
+            <ItemsControl HorizontalContentAlignment="Stretch" ItemsSource="{x:Bind Parameters}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBox Margin="5" Text="{Binding Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Button Margin="5"
+                    Click="AddParameterButton_OnClick"
+                    Content="Add Parameter" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2">
+            <TextBlock Margin="5"
+                       FontSize="{StaticResource TextStyleExtraLargeFontSize}"
+                       Text="Result:" />
+
+            <ItemsControl ItemsSource="{x:Bind Items}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button x:Name="InvokeExtensionButton"
+                                Width="100"
+                                Height="40"
+                                Margin="10"
+                                Click="InvokeExtensionButton_OnClick"
+                                Content="{Binding AppExtension.DisplayName}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <TextBlock x:Name="ResultText"
+                       Margin="5"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+    </Grid>
+</Page>

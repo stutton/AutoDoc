@@ -10,6 +10,6 @@ namespace Stutton.AppExtensionClient.Contracts
     {
         event Action<object, CancellationReason> Canceled;
         IAppServiceTriggerDetails TriggerDetails { get; }
-        IAppServiceDeferral GetDeferral();
+        IDeferral GetDeferral();
     }
 }

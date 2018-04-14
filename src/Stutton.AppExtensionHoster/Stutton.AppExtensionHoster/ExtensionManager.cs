@@ -49,7 +49,7 @@ namespace Stutton.AppExtensionHoster
         /// </summary>
         /// <param name="dispatcher"></param>
         /// <returns></returns>
-        public async Task InitializeAsync(IDispatcher dispatcher)
+        public void InitializeAsync(IDispatcher dispatcher)
         {
             #region Error Handling
             if (_dispatcher != null)
@@ -66,7 +66,7 @@ namespace Stutton.AppExtensionHoster
             _catalog.PackageUpdating += Catalog_PackageUpdating;
             _catalog.PackageStatusChanged += Catalog_PackageStatusChanged;
 
-            await FindAndLoadExtensions();
+            FindAndLoadExtensions();
         }
 
         public async void RemoveExtension(Extension<TMessage, TResponse> extension)
@@ -100,7 +100,7 @@ namespace Stutton.AppExtensionHoster
             }
         }
 
-        private async Task FindAndLoadExtensions()
+        private async void FindAndLoadExtensions()
         {
             var extensions = await _catalog.FindAllAsync();
             foreach (var extension in extensions)

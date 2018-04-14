@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Stutton.AppExtensionHoster.Contracts;
 
 namespace Stutton.AppExtensionHoster
@@ -47,53 +48,68 @@ namespace Stutton.AppExtensionHoster
                 return ("error", $"Extension for {_serviceName} is not ready: Extension status is {State}", default(TResponse));
             }
 
-            try
+            using (var connection = _connectionFactory.Create())
             {
-                using (var connection = _connectionFactory.Create())
+                try
                 {
                     connection.AppServiceName = _serviceName;
                     connection.PackageFamilyName = AppExtension.Package.FamilyName;
 
                     var status = await connection.OpenAsync();
 
+                    await Task.Delay(50);
+
                     #region Error Handling
+
                     if (status != AppConnectionStatus.Success)
                     {
-                        return ("error", $"Failed to open app service connectionFactory to {_serviceName}: Connection status is {status}", default(TResponse));
+                        return ("error",
+                            $"Failed to open app service connectionFactory to {_serviceName}: Connection status is {status}",
+                            default(TResponse));
                     }
+
                     #endregion
 
                     var response = await connection.SendMessageAsync(message);
 
+
                     #region Error Handling
+
                     if (response.Status != AppResponseStatus.Success)
                     {
-                        return ("error", $"Failed to call app service {_serviceName}: Reponse status is {response.Status}", default(TResponse));
+                        return ("error",
+                            $"Failed to call app service {_serviceName}: Reponse status is {response.Status}",
+                            default(TResponse));
                     }
+
                     if (!response.Message.ContainsKey("result"))
                     {
                         return ("error", $"Response from {_serviceName} did not contain a result", default(TResponse));
                     }
+
                     #endregion
 
-                    var resultObj = response.Message["result"];
-                    if (resultObj is TResponse result)
+                    var jsonResult = response.Message["result"] as string;
+                    var result = JsonConvert.DeserializeObject<TResponse>(jsonResult);
+                    if (result != null)
                     {
                         return ("success", null, result);
                     }
 
                     #region Error Handling
-                    return ("error",
-                        $"Response message from app service {_serviceName} was not of the expected type '{typeof(TResponse).Name}': Received message of type '{resultObj.GetType().Name}'",
-                        default(TResponse));
-                    #endregion
-                }
 
-            }
-            catch (Exception ex)
-            {
-                return ("error", $"An error occured invoking extension for {_serviceName}: {ex.Message}",
-                    default(TResponse));
+                    return ("error",
+                        $"Failed to deserialize response to type '{typeof(TResponse)}. Response: '{jsonResult}'",
+                        default(TResponse));
+
+                    #endregion
+
+                }
+                catch (Exception ex)
+                {
+                    return ("error", $"An error occured invoking extension for {_serviceName}: {ex.Message}",
+                        default(TResponse));
+                }
             }
         }
 

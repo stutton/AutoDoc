@@ -114,6 +114,7 @@
     <Compile Include="AppExtensionPackageUpdatingEventArgsWrapper.cs" />
     <Compile Include="AppExtensionWrapper.cs" />
     <Compile Include="AppPackageWrapper.cs" />
+    <Compile Include="AppServiceConnectionFactor.cs" />
     <Compile Include="AppServiceConnectionWrapper.cs" />
     <Compile Include="AppServiceResponseWrapper.cs" />
     <Compile Include="BitmapImageWrapper.cs" />
@@ -125,6 +126,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.8</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>11.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

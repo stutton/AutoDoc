@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stutton.AppExtensionClient", "Stutton.AppExtensionClient\Stutton.AppExtensionClient.csproj", "{13C61CC6-BED4-446B-AA9C-71029CD60F16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stutton.AppExtensionClient", "Stutton.AppExtensionClient\Stutton.AppExtensionClient.csproj", "{13C61CC6-BED4-446B-AA9C-71029CD60F16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stutton.AppExtensionClient.Contracts", "Stutton.AppExtensionClient.Contracts\Stutton.AppExtensionClient.Contracts.csproj", "{F43FBED9-7481-4FC7-BC65-490F13304327}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stutton.AppExtensionClient.Contracts", "Stutton.AppExtensionClient.Contracts\Stutton.AppExtensionClient.Contracts.csproj", "{F43FBED9-7481-4FC7-BC65-490F13304327}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stutton.AppExtensionClient.Tests", "Stutton.AppExtensionClient.Tests\Stutton.AppExtensionClient.Tests.csproj", "{21520E48-C862-45CA-A500-35F845E3C0EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F43FBED9-7481-4FC7-BC65-490F13304327}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F43FBED9-7481-4FC7-BC65-490F13304327}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F43FBED9-7481-4FC7-BC65-490F13304327}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21520E48-C862-45CA-A500-35F845E3C0EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21520E48-C862-45CA-A500-35F845E3C0EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21520E48-C862-45CA-A500-35F845E3C0EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21520E48-C862-45CA-A500-35F845E3C0EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

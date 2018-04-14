@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Stutton.AppExtensionClient.Contracts
 {
-    public interface IAppServiceDeferral
+    public interface IDeferral
     {
         void Complete();
     }
