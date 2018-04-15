@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Stutton.AutoDoc.Logic
 {
-    public abstract class NotifyBase : INotifyPropertyChanged
+    public abstract class Observable : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

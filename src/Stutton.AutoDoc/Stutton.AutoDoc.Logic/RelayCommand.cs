@@ -31,11 +31,7 @@ namespace Stutton.AutoDoc.Logic
             _canExecute = canExecute;
         }
 
-        public bool CanExecute(object parameter)
-        {
-            _canExecute?.Invoke(parameter);
-            return true;
-        }
+        public bool CanExecute(object parameter) => _canExecute?.Invoke(parameter) ?? true;
 
         public void Execute(object parameter)
         {
@@ -47,5 +43,7 @@ namespace Stutton.AutoDoc.Logic
 
             _executeWithParam?.Invoke(parameter);
         }
+
+        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

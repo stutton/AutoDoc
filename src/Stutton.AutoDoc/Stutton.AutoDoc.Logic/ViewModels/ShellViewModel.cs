@@ -2,7 +2,7 @@
 
 namespace Stutton.AutoDoc.Logic.ViewModels
 {
-    public class ShellViewModel : NotifyBase
+    public class ShellViewModel : Observable
     {
         private int _test = 42;
 

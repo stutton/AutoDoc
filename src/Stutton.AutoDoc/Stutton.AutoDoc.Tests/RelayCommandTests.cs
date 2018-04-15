@@ -58,5 +58,29 @@ namespace Stutton.AutoDoc.Tests
 
             Assert.IsTrue(predicateRun);
         }
+
+        [TestMethod]
+        public void CanExecuteReturnsPredicateValue()
+        {
+            var cmd = new RelayCommand(Helpers.DoNothingAction, p => (bool)p);
+
+            var canExecuteTrue = cmd.CanExecute(true);
+            var canExecuteFalse = cmd.CanExecute(false);
+
+            Assert.IsTrue(canExecuteTrue);
+            Assert.IsFalse(canExecuteFalse);
+        }
+
+        [TestMethod]
+        public void CanExecuteChangedRaisedWhenRaiseCanExecuteChangedCalled()
+        {
+            var cmd = new RelayCommand(Helpers.DoNothingAction);
+            var canExecuteChangeRaised = false;
+            cmd.CanExecuteChanged += (s, e) => canExecuteChangeRaised = true;
+
+            cmd.RaiseCanExecuteChanged();
+
+            Assert.IsTrue(canExecuteChangeRaised);
+        }
     }
 }

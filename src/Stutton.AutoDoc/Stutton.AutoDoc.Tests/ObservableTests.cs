@@ -6,12 +6,12 @@ using Stutton.AutoDoc.Logic;
 namespace Stutton.AutoDoc.Tests
 {
     [TestClass]
-    public class NotifyBaseTests
+    public class ObservableTests
     {
         [TestMethod]
         public void PropertyChangedRaisedWhenPropertyChanges()
         {
-            var notifyObject = new NotifyMock();
+            var notifyObject = new ObservableMock();
             var propertyChangedRaised = false;
             notifyObject.PropertyChanged += (s, e) => propertyChangedRaised = true;
 
@@ -23,7 +23,7 @@ namespace Stutton.AutoDoc.Tests
         [TestMethod]
         public void PropertyChangedEventArgsHasCorrectPropertyName()
         {
-            var notifyObject = new NotifyMock();
+            var notifyObject = new ObservableMock();
             string propertyName = null;
             notifyObject.PropertyChanged += (s, e) => propertyName = e.PropertyName;
 
@@ -35,7 +35,7 @@ namespace Stutton.AutoDoc.Tests
         [TestMethod]
         public void PropertyChangedEventArgsHasOverriddenPropertyName()
         {
-            var notifyObject = new NotifyMock();
+            var notifyObject = new ObservableMock();
             string overriddenName = null;
             notifyObject.PropertyChanged += (s, e) => overriddenName = e.PropertyName;
 
@@ -47,7 +47,7 @@ namespace Stutton.AutoDoc.Tests
         [TestMethod]
         public void PropertyChangedSenderIsCorrectObject()
         {
-            var notifyObject = new NotifyMock();
+            var notifyObject = new ObservableMock();
             object sender = null;
             notifyObject.PropertyChanged += (s, e) => sender = s;
 
@@ -59,7 +59,7 @@ namespace Stutton.AutoDoc.Tests
         [TestMethod]
         public void PropertyChangedNotRaisedIfNewValueEqualsOldValue()
         {
-            var notifyObject = new NotifyMock();
+            var notifyObject = new ObservableMock();
             var propertyChangedRaised = false;
             notifyObject.NotifyProp = "test";
             notifyObject.PropertyChanged += (s, e) => propertyChangedRaised = true;
@@ -69,7 +69,7 @@ namespace Stutton.AutoDoc.Tests
             Assert.IsFalse(propertyChangedRaised);
         }
 
-        private class NotifyMock : NotifyBase
+        private class ObservableMock : Observable
         {
             private string _notifyProp;
 
