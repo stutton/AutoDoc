@@ -95,11 +95,72 @@ namespace Stutton.AutoDoc.Tests.Services
             Assert.IsFalse(nav.CanGoBack);
         }
 
-        //[TestMethod]
-        //public void NavigateForward()
-        //{
+        [TestMethod]
+        public void CanNavigateBackOnePageHistory()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.IsAny<Type>()) == new PageMock());
+            var nav = new NavigationService(pageFactory);
 
-        //}
+            nav.Navigate(typeof(PageMock));
+
+            Assert.IsFalse(nav.CanGoBack);
+        }
+
+        [TestMethod]
+        public void CanNavigateBackMultiplePageHistory()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.Is<Type>(t => t == typeof(PageMock))) == new PageMock()
+                  && p.GetPage(It.Is<Type>(t => t == typeof(PageMock2))) == new PageMock2());
+            var nav = new NavigationService(pageFactory);
+
+            nav.Navigate(typeof(PageMock));
+            nav.Navigate(typeof(PageMock2));
+
+            Assert.IsTrue(nav.CanGoBack);
+        }
+
+        [TestMethod]
+        public void NavigateForward()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.Is<Type>(t => t == typeof(PageMock))) == new PageMock()
+                  && p.GetPage(It.Is<Type>(t => t == typeof(PageMock2))) == new PageMock2());
+            var nav = new NavigationService(pageFactory);
+
+            nav.Navigate(typeof(PageMock));
+            nav.Navigate(typeof(PageMock2));
+            nav.GoBack();
+            nav.GoForward();
+
+            Assert.IsInstanceOfType(nav.CurrentPage, typeof(PageMock2));
+        }
+
+        [TestMethod]
+        public void NavigateForwardNoForward()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.IsAny<Type>()) == new PageMock());
+            var nav = new NavigationService(pageFactory);
+
+            nav.GoForward();
+
+            Assert.IsNull(nav.CurrentPage);
+        }
+
+        [TestMethod]
+        public void NavigateForwardOneForward()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.IsAny<Type>()) == new PageMock());
+            var nav = new NavigationService(pageFactory);
+
+            nav.Navigate(typeof(PageMock));
+            nav.GoForward();
+
+            Assert.IsInstanceOfType(nav.CurrentPage, typeof(PageMock));
+        }
 
         //[TestMethod]
         //public void CanNavigateForward()

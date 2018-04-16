@@ -11,6 +11,7 @@ namespace Stutton.AutoDoc.Logic.Services.Navigation
         private readonly IPageFactory _pageFactory;
 
         private readonly Stack<Type> _pageHistory = new Stack<Type>();
+        private readonly Stack<Type> _pageForward = new Stack<Type>();
 
         public NavigationService(IPageFactory pageFactory)
         {
@@ -31,14 +32,30 @@ namespace Stutton.AutoDoc.Logic.Services.Navigation
 
         public void GoBack()
         {
-            if(_pageHistory.Count == 0)
+            if(!_pageHistory.Any())
             {
                 return;
             }
-
+            if(CurrentPage != null)
+            {
+                _pageForward.Push(CurrentPage.GetType());
+            }
             CurrentPage = _pageFactory.GetPage(_pageHistory.Pop());
         }
 
-        public bool CanGoBack => _pageHistory.Count >= 2;
+        public bool CanGoBack => _pageHistory.Any();
+
+        public void GoForward()
+        {
+            if (!_pageForward.Any())
+            {
+                return;
+            }
+            if(CurrentPage != null)
+            {
+                _pageHistory.Push(CurrentPage.GetType());
+            }
+            CurrentPage = _pageFactory.GetPage(_pageForward.Pop());
+        }
     }
 }
