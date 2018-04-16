@@ -28,6 +28,7 @@ namespace Stutton.AutoDoc.Logic.Services.Navigation
             }
 
             CurrentPage = _pageFactory.GetPage(pageType);
+            _pageForward.Clear();
         }
 
         public void GoBack()
@@ -57,5 +58,7 @@ namespace Stutton.AutoDoc.Logic.Services.Navigation
             }
             CurrentPage = _pageFactory.GetPage(_pageForward.Pop());
         }
+
+        public bool CanGoForward => _pageForward.Any();
     }
 }

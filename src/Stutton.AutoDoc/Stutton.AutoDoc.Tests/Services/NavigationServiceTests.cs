@@ -162,11 +162,60 @@ namespace Stutton.AutoDoc.Tests.Services
             Assert.IsInstanceOfType(nav.CurrentPage, typeof(PageMock));
         }
 
-        //[TestMethod]
-        //public void CanNavigateForward()
-        //{
+        [TestMethod]
+        public void NavigateForwardClearedAfterNewNav()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.Is<Type>(t => t == typeof(PageMock))) == new PageMock()
+                  && p.GetPage(It.Is<Type>(t => t == typeof(PageMock2))) == new PageMock2()
+                  && p.GetPage(It.Is<Type>(t => t == typeof(PageMock3))) == new PageMock3());
+            var nav = new NavigationService(pageFactory);
 
-        //}
+            nav.Navigate(typeof(PageMock));
+            nav.Navigate(typeof(PageMock2));
+            nav.GoBack();
+            nav.Navigate(typeof(PageMock3));
+            nav.GoForward();
+
+            Assert.IsInstanceOfType(nav.CurrentPage, typeof(PageMock3));
+        }
+
+        [TestMethod]
+        public void CanNavigateForwardNoForward()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.IsAny<Type>()) == new PageMock());
+            var nav = new NavigationService(pageFactory);
+
+            Assert.IsFalse(nav.CanGoForward);
+        }
+
+        [TestMethod]
+        public void CanNavigateForwardOneForward()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.IsAny<Type>()) == new PageMock());
+            var nav = new NavigationService(pageFactory);
+
+            nav.Navigate(typeof(PageMock));
+
+            Assert.IsFalse(nav.CanGoForward);
+        }
+
+        [TestMethod]
+        public void CanNavigateForwardMultipleForwardOneBack()
+        {
+            var pageFactory = Mock.Of<IPageFactory>(
+                p => p.GetPage(It.Is<Type>(t => t == typeof(PageMock))) == new PageMock()
+                  && p.GetPage(It.Is<Type>(t => t == typeof(PageMock2))) == new PageMock2());
+            var nav = new NavigationService(pageFactory);
+
+            nav.Navigate(typeof(PageMock));
+            nav.Navigate(typeof(PageMock2));
+            nav.GoBack();
+
+            Assert.IsTrue(nav.CanGoForward);
+        }
 
         private class PageMock : IPage
         {
@@ -176,6 +225,11 @@ namespace Stutton.AutoDoc.Tests.Services
         private class PageMock2 : IPage
         {
             public string Title => "Mock Page 2";
+        }
+
+        private class PageMock3 : IPage
+        {
+            public string Title => "Mock Page 3";
         }
     }
 }
