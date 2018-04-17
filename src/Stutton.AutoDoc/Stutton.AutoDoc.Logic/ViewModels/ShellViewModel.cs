@@ -1,11 +1,17 @@
-﻿using System;
+﻿using Stutton.AutoDoc.Logic.Services.Navigation;
+using System;
 
 namespace Stutton.AutoDoc.Logic.ViewModels
 {
     public class ShellViewModel : Observable
     {
-        private int _test = 42;
+        private readonly NavigationService _navigationService;
 
-        public int Test { get => _test; set => SetProperty(ref _test, value); }
+        public ShellViewModel(NavigationService navigationService)
+        {
+            _navigationService = navigationService;
+        }
+
+        public IPage CurrentPage => _navigationService.CurrentPage;
     }
 }
